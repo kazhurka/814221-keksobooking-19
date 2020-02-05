@@ -97,6 +97,7 @@ var getApartmentOffer = function (number) {
       avatar: 'img/avatars/user' + '0' + number + '.png',
     },
     offer: {
+      id: number,
       title: 'Уютное гнездышко для молодоженов',
       location: {
         x: xNumber,
@@ -181,15 +182,7 @@ var renderCard = function (card) {
   getPhotosInElement(PHOTO_EXAMPLES);
   return cardElement;
 };
-// Временная функция
-var renderCardElements = function (offers) {
-  var pinElements = document.querySelector('.map__pins');
-  var fragment = document.createDocumentFragment();
-  offers.forEach(function (offer) {
-    fragment.appendChild(renderCard(offer));
-  });
-  pinElements.appendChild(fragment);
-};
+
 
 var pinElementTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 /**
@@ -203,6 +196,7 @@ var renderPin = function (card) {
   pinElement.style.top = card.offer.location.y - Coordinates.Y_OFFSET + 'px';
   pinElement.querySelector('img').setAttribute('src', card.author.avatar);
   pinElement.querySelector('img').setAttribute('alt', card.offer.title);
+  pinElement.id = 'pin' + card.offer.id;
 
   return pinElement;
 };
@@ -216,6 +210,63 @@ var renderPinElements = function (offers) {
   });
 
   pinElements.appendChild(fragment);
+
+};
+
+
+var createCardPinObject = function () {
+
+  var cardPinObject = {};
+  var pins = [];
+  var cards = [];
+  for (var i = 0; i < OBJECTS_QUANTITY; i++) {
+    pins[i] = (renderPin(apartmentOffers[i]));
+    cards[i] = (renderCard(apartmentOffers[i]));
+    cardPinObject[pins[i].id] = cards[i];
+  }
+  return cardPinObject;
+};
+var cardPinObject = createCardPinObject();
+var closeMouseCardHandler = function (evt) {
+  if (evt.button === 0) {
+    var map = document.querySelector('.map__pins');
+    map.removeChild(map.querySelector('.map__card'));
+  }
+};
+
+var closeKeyCardHandler = function (evt) {
+  if (evt.key === 'Escape') {
+    var map = document.querySelector('.map__pins');
+    map.removeChild(map.querySelector('.map__card'));
+    evt.target.removeEventListener('keydown', closeKeyCardHandler);
+  }
+};
+var openCardHandler = function (evt) {
+  if (evt.button === 0) {
+    var map = document.querySelector('.map__pins');
+    if (
+      evt.target &&
+      (evt.target.matches('.map__pin') || evt.target.parentNode.matches('.map__pin')) &&
+      !(evt.target.matches('.map__pin--main') || evt.target.parentNode.matches('.map__pin--main'))
+    ) {
+
+      if (evt.target.matches('.map__pin')) {
+        var cardElement = cardPinObject[evt.target.id];
+      } else {
+        cardElement = cardPinObject[evt.target.parentNode.id];
+      }
+      if (document.querySelector('.map__card')) {
+        map.removeChild(map.querySelector('.map__card'));
+      }
+      var pinElements = document.querySelector('.map__pins');
+      var fragment = document.createDocumentFragment();
+      fragment.appendChild(cardElement);
+      pinElements.appendChild(fragment);
+      document.querySelector('.map__card').querySelector('.popup__close').addEventListener('mousedown', closeMouseCardHandler);
+      document.addEventListener('keydown', closeKeyCardHandler);
+
+    }
+  }
 };
 
 
@@ -227,6 +278,7 @@ var enableForm = function (enable) {
       formElement.classList.remove('ad-form--disabled');
       formElement.querySelector('#address').setAttribute('value', Math.floor(MainPinValues.WIDTH + MainPinValues.X_OFFSET) + ',' +
         Math.floor(MainPinValues.HEIGHT + MainPinValues.Y_OFFSET));
+      createCardPinObject();
     });
   } else {
     formElement.classList.add('ad-form--disabled');
@@ -245,7 +297,6 @@ var enablePage = function (enable) {
     enableForm(true);
     map.classList.remove('map--faded');
     renderPinElements(apartmentOffers);
-    renderCardElements(apartmentOffers);
   } else {
     enableForm();
     document.querySelector('.map__filters').classList.add('map__filters--disabled');
@@ -271,6 +322,7 @@ var pinMainKeydownHandler = function (evt) {
 
 mainPin.addEventListener('mousedown', pinMainClickHandler);
 mainPin.addEventListener('keydown', pinMainKeydownHandler);
+document.querySelector('.map__pins').addEventListener('click', openCardHandler);
 
 
 var roomGuestChangeHandler = function () {
@@ -292,5 +344,39 @@ var roomGuestChangeHandler = function () {
     document.querySelector('#capacity').setCustomValidity('');
   }
 };
+var timesChangeHandler = function (evt) {
+  var checkinIndexTime = document.querySelector('#timein').selectedIndex;
+  var checoutIndexTime = document.querySelector('#timeout').selectedIndex;
+  if (evt.target.matches('#timein')) {
+    var checkoutTime = document.querySelector('#timeout');
+    checkoutTime.selectedIndex = checkinIndexTime;
+  } else {
+    var checkinTime = document.querySelector('#timein');
+    checkinTime.selectedIndex = checoutIndexTime;
+  }
+};
+var setPrice = function (price) {
+  var apartmenttPrice = document.querySelector('#price');
+  apartmenttPrice.setAttribute('min', price);
+  apartmenttPrice.setAttribute('placeholder', price);
+};
+var apartmentPriceChangeHandler = function () {
+  var typeIndex = document.querySelector('#type').selectedIndex;
+  if (typeIndex === 0) {
+    setPrice(0);
+  }
+  if (typeIndex === 1) {
+    setPrice(1000);
+  }
+  if (typeIndex === 2) {
+    setPrice(5000);
+  }
+  if (typeIndex === 3) {
+    setPrice(10000);
+  }
+};
 document.querySelector('#room_number').addEventListener('change', roomGuestChangeHandler);
 document.querySelector('#capacity').addEventListener('change', roomGuestChangeHandler);
+document.querySelector('#timein').addEventListener('change', timesChangeHandler);
+document.querySelector('#timeout').addEventListener('change', timesChangeHandler);
+document.querySelector('#type').addEventListener('change', apartmentPriceChangeHandler);
