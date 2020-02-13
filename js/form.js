@@ -1,48 +1,28 @@
 'use strict';
 
 (function () {
-  var MainPinValues = {
-    WIDTH: 65,
-    HEIGHT: 65,
-    X_START_VALUE: 570,
-    Y_START_VALUE: 375,
-    X_OFFSET: 33,
-    Y_OFFSET: 65,
-  };
-  var createCardPinObject = function () {
-
-    var cardPinObject = {};
-    var pins = [];
-    var cards = [];
-    for (var i = 0; i < window.data.OBJECTS_QUANTITY; i++) {
-      pins[i] = (window.pin.renderPin(window.data.apartmentOffers[i]));
-      cards[i] = (window.card.renderCard(window.data.apartmentOffers[i]));
-      cardPinObject[pins[i].id] = cards[i];
-    }
-    return cardPinObject;
-  };
-
+  /**
+   * Функция, которая включает или выключает форму.
+   * @param {bullean} enable - если false, то выключает форму, если true - включает.
+   */
   var enableForm = function (enable) {
     var formElement = document.querySelector('.ad-form');
-    if (enable) {
-      document.querySelectorAll('.ad-form__element').forEach(function (item) {
-        item.removeAttribute('disabled');
-        formElement.classList.remove('ad-form--disabled');
-        formElement.querySelector('#address').setAttribute('value', Math.floor(MainPinValues.WIDTH + MainPinValues.X_OFFSET) + ',' +
-          Math.floor(MainPinValues.HEIGHT + MainPinValues.Y_OFFSET));
-        createCardPinObject();
-      });
-    } else {
+    if (enable === false) {
       formElement.classList.add('ad-form--disabled');
       document.querySelectorAll('.ad-form__element').forEach(function (item) {
         item.setAttribute('disabled', 'disabled');
-        formElement.querySelector('#address').setAttribute('value', MainPinValues.X_START_VALUE + Math.floor(MainPinValues.WIDTH / 2) + ',' +
-          (MainPinValues.Y_START_VALUE + Math.floor(MainPinValues.HEIGHT / 2)));
+      });
+    } else {
+      document.querySelectorAll('.ad-form__element').forEach(function (item) {
+        item.removeAttribute('disabled');
+        formElement.classList.remove('ad-form--disabled');
       });
     }
   };
 
-
+  /**
+  * Обработчик, которые валидирует поля: количество комнат и количество гостей.
+  */
   var roomGuestChangeHandler = function () {
     var Rooms = {
       1: [1],
@@ -62,37 +42,46 @@
       document.querySelector('#capacity').setCustomValidity('');
     }
   };
+
+  var checkoutTime = document.querySelector('#timeout');
+  var checkinTime = document.querySelector('#timein');
+
+  /**
+   *   Обрабочик, который устанавливает зависимость между полями формы: врема заезда и время выезда.
+   * @param {object} evt - объект события.
+   */
   var timesChangeHandler = function (evt) {
-    var checkinIndexTime = document.querySelector('#timein').selectedIndex;
-    var checoutIndexTime = document.querySelector('#timeout').selectedIndex;
+    var checkinIndexTime = checkinTime.selectedIndex;
+    var checkoutIndexTime = checkoutTime.selectedIndex;
     if (evt.target.matches('#timein')) {
-      var checkoutTime = document.querySelector('#timeout');
       checkoutTime.selectedIndex = checkinIndexTime;
     } else {
-      var checkinTime = document.querySelector('#timein');
-      checkinTime.selectedIndex = checoutIndexTime;
+      checkinTime.selectedIndex = checkoutIndexTime;
     }
   };
+  /**
+   * Добавляет значение в атрибут 'min' поля 'цена'.
+   * @param {number} price - минимальная цена жилья
+   */
   var setPrice = function (price) {
     var apartmenttPrice = document.querySelector('#price');
     apartmenttPrice.setAttribute('min', price);
     apartmenttPrice.setAttribute('placeholder', price);
   };
-  var apartmentPriceChangeHandler = function () {
-    var typeIndex = document.querySelector('#type').selectedIndex;
-    if (typeIndex === 0) {
-      setPrice(0);
-    }
-    if (typeIndex === 1) {
-      setPrice(1000);
-    }
-    if (typeIndex === 2) {
-      setPrice(5000);
-    }
-    if (typeIndex === 3) {
-      setPrice(10000);
+  /**
+   * Обработчик, устанавливает зависимость поля  'цена' от  поля 'тип жилья'.
+   * @param {object} evt - объект события.
+   */
+  var apartmentPriceChangeHandler = function (evt) {
+    var typeIndex = evt.target.selectedIndex;
+    var prices = [0, 1000, 5000, 10000];
+    for (var i = 0; i < prices.length; i++) {
+      if (typeIndex === i) {
+        setPrice(prices[i]);
+      }
     }
   };
+
   document.querySelector('#room_number').addEventListener('change', roomGuestChangeHandler);
   document.querySelector('#capacity').addEventListener('change', roomGuestChangeHandler);
   document.querySelector('#timein').addEventListener('change', timesChangeHandler);

@@ -46,35 +46,6 @@
     Y_OFFSET: 70,
   };
 
-  /**
-   * Находит случайное значение в заданном массиве
-   * @param {number} min - минимальное значение
-   * @param {number} max - максимальное значение
-   * @return {number} - случайное значение
-   */
-  var getRandomNumber = function (min, max) {
-
-    return Math.floor(Math.random() * (max - min) + min);
-
-  };
-
-  /**
-   * Генерирует  массив определенной длины со случайными значениями из заданного массива
-   * @param {*} arr - заданный массив
-   * @param {*} newLength - длина нового массива
-   * @return {newArr} -сгенерированный массив
-   */
-
-  var getRandomArrFromArr = function (arr, newLength) {
-    var newArr = [];
-    var workArr = arr.slice();
-    newArr.length = newLength;
-    for (var i = 0; i < newArr.length; i++) {
-      newArr[i] = (workArr[getRandomNumber(0, workArr.length - 1)]);
-      workArr.splice(workArr.indexOf(newArr[i], 0), 1);
-    }
-    return (newArr);
-  };
 
   /**
    * Формирует карточку с предложением о сдаче жилья
@@ -83,30 +54,29 @@
    */
   var getApartmentOffer = function (number) {
 
-    var xNumber = (getRandomNumber(Coordinates.X_MIN_VALUE, Coordinates.X_MAX_VALUE));
-    var yNumber = (getRandomNumber(Coordinates.Y_MIN_VALUE, Coordinates.Y_MAX_VALUE));
+    var xNumber = (window.util.getRandomNumber(Coordinates.X_MIN_VALUE, Coordinates.X_MAX_VALUE));
+    var yNumber = (window.util.getRandomNumber(Coordinates.Y_MIN_VALUE, Coordinates.Y_MAX_VALUE));
 
     var apartmentOffer = {
       author: {
         avatar: 'img/avatars/user' + '0' + number + '.png',
       },
       offer: {
-        id: number,
         title: 'Уютное гнездышко для молодоженов',
         location: {
           x: xNumber,
           y: yNumber,
         },
         address: '102-0082 Tōkyō-to, Chiyoda-ku, Ichibanchō, 14−3',
-        price: (getRandomNumber(Prices.MIN_PRICE, Prices.MAX_PRICE)),
-        type: APARTMENT_TYPES[getRandomNumber(0, 3)],
-        rooms: (getRandomNumber(2, 4)),
-        guests: (getRandomNumber(2, 4)),
-        checkin: CHECK_IN_OUT_TIMES[getRandomNumber(0, 2)],
-        checkout: CHECK_IN_OUT_TIMES[getRandomNumber(0, 2)],
-        features: getRandomArrFromArr(APARTMENT_EXAMPLE_FEATURES, getRandomNumber(1, 6)),
+        price: (window.util.getRandomNumber(Prices.MIN_PRICE, Prices.MAX_PRICE)),
+        type: APARTMENT_TYPES[window.util.getRandomNumber(0, 3)],
+        rooms: (window.util.getRandomNumber(2, 4)),
+        guests: (window.util.getRandomNumber(2, 4)),
+        checkin: CHECK_IN_OUT_TIMES[window.util.getRandomNumber(0, 2)],
+        checkout: CHECK_IN_OUT_TIMES[window.util.getRandomNumber(0, 2)],
+        features: window.util.getRandomArrFromArr(APARTMENT_EXAMPLE_FEATURES, window.util.getRandomNumber(1, 6)),
         description: 'Великолепная квартира-студия в центре Токио. Подходит как туристам, так и бизнесменам. Квартира полностью укомплектована и недавно отремонтирована',
-        photos: getRandomArrFromArr(PHOTO_EXAMPLES, getRandomNumber(1, 3)),
+        photos: window.util.getRandomArrFromArr(PHOTO_EXAMPLES, window.util.getRandomNumber(1, 3)),
       }
     };
 
@@ -125,17 +95,19 @@
     }
     return apartmentOffers;
   };
-  var apartmentOffers = getApartmentOffers(OBJECTS_QUANTITY);
+
+
   window.data = {
     OBJECTS_QUANTITY: OBJECTS_QUANTITY,
-    getApartmentOffer: getApartmentOffer,
+    /* Нужен， чтобы потом не использовать цифру 8 в качестве магического числа*/
     APARTMENT_TYPES_RUSSIAN: APARTMENT_TYPES_RUSSIAN,
     APARTMENT_EXAMPLE_FEATURES: APARTMENT_EXAMPLE_FEATURES,
-    PHOTO_EXAMPLES: PHOTO_EXAMPLES,
+    /* (нужны для отрисовки , сравниваю с ними значения из card )*/
     X_OFFSET: Coordinates.X_OFFSET,
+    /* (нужны для адреса  и отрисовки пинов)*/
     Y_OFFSET: Coordinates.Y_OFFSET,
+    /* (нужны для адреса и отрисовки пинов)*/
     getApartmentOffers: getApartmentOffers,
-    apartmentOffers: apartmentOffers,
   };
 
 })();
