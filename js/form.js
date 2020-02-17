@@ -3,7 +3,7 @@
 (function () {
   /**
    * Функция, которая включает или выключает форму.
-   * @param {bullean} enable - если false, то выключает форму, если true - включает.
+   * @param {boolean} enable - если false, то выключает форму, если true - включает.
    */
   var enableForm = function (enable) {
     var formElement = document.querySelector('.ad-form');
@@ -74,10 +74,15 @@
    */
   var apartmentPriceChangeHandler = function (evt) {
     var typeIndex = evt.target.selectedIndex;
-    var prices = [0, 1000, 5000, 10000];
-    for (var i = 0; i < prices.length; i++) {
+    var Prices = {
+      0: 0,
+      1: 1000,
+      2: 5000,
+      3: 10000,
+    };
+    for (var i = 0; i < 4; i++) {
       if (typeIndex === i) {
-        setPrice(prices[i]);
+        setPrice(Prices[i]);
       }
     }
   };

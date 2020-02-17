@@ -1,7 +1,13 @@
 'use strict';
-//
 (function () {
-
+  var ALL_FEATURES = [
+    'wifi',
+    'dishwasher',
+    'parking',
+    'washer',
+    'elevator',
+    'conditioner'
+  ];
   var cardOfferTemplate = document.querySelector('#card').content.querySelector('.map__card');
   /**
    * Добавляет карточку с предложением в DOM
@@ -16,9 +22,9 @@
      * @param {array} features - массив со всеми  возможными опциями для жилья
      */
 
-    var getFeaturesinElement = function (features) {
+    var getFeaturesInElement = function (features) {
       // APARTMENT_EXAMPLE_FEATURES нужен лишь для сравнения и последующего удаления из dom, данные берутся из card
-      window.data.APARTMENT_EXAMPLE_FEATURES.forEach(function (feature) {
+      ALL_FEATURES.forEach(function (feature) {
         if (features.indexOf(feature, 0) === -1) {
           cardElement.querySelector('.popup__features').removeChild(cardElement.querySelector('.popup__feature--' + feature));
         }
@@ -46,22 +52,20 @@
     cardElement.querySelector('.popup__type').textContent = window.data.APARTMENT_TYPES_RUSSIAN[card.offer.type];
     cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' ' + 'комнат(ы) для' + ' ' + card.offer.guests + ' ' + 'гостей';
     cardElement.querySelector('.popup__text--time').textContent = 'Заезд после' + ' ' + card.offer.checkin + ',' + ' ' + 'выезд до' + ' ' + card.offer.checkout;
-    getFeaturesinElement(card.offer.features);
+    getFeaturesInElement(card.offer.features);
     cardElement.querySelector('.popup__description').textContent = card.offer.description;
     getPhotosInElement(card.offer.photos);
-    cardElement.querySelector('.popup__close').addEventListener('mousedown', cardMouseCloseHandler);
+    cardElement.querySelector('.popup__close').addEventListener('click', cardButtonCloseHandler);
     document.addEventListener('keydown', cardKeyCloseHandler);
     return cardElement;
   };
 
   /**
- * Обработчик закрытия карточки по нажатию левой кнопки мыши.
- * @param {object} evt - объект события.
- */
-  var cardMouseCloseHandler = function (evt) {
-    if (evt.button === 0) {
-      document.querySelector('.map__pins').removeChild(document.querySelector('.map__card'));
-    }
+   * Обработчик закрытия карточки по клику  на кнопку 'крестик' .
+   * @param {object} evt - объект события.
+   */
+  var cardButtonCloseHandler = function () {
+    document.querySelector('.map__pins').removeChild(document.querySelector('.map__card'));
   };
 
   /**
@@ -77,39 +81,25 @@
 
   /**
    *
-   * Обработчик отрисовки и открытия  соотвествующей карточки, по нажатию на метку объявления.
+   * Обработчик отрисовки и открытия  соотвествующей карточки, по клику на метку объявления.
    *  @param {object} evt - объект события.
    */
   var cardOpenHandler = function (evt) {
     var map = document.querySelector('.map__pins');
-    if (evt.button === 0) {
-      if (
-        evt.target &&
-        (evt.target.matches('.map__pin') || evt.target.parentNode.matches('.map__pin')) &&
-        !(evt.target.matches('.map__pin--main') || evt.target.parentNode.matches('.map__pin--main'))
-      ) {
-
-        if (evt.target.matches('.map__pin')) {
-          var id = evt.target.id.slice(4);
-          var index = parseInt(id, 10) - 1; /* (названия начинаются с 1, а первый элемент под индексом 0) */
-          var cardData = window.data.getApartmentOffers(window.data.OBJECTS_QUANTITY)[index];
-        } else {
-          id = evt.target.parentNode.id.slice(4);
-          index = parseInt(id, 10) - 1;
-          cardData = (window.data.getApartmentOffers(window.data.OBJECTS_QUANTITY))[index];
-        }
-        if (document.querySelector('.map__card')) {
-          map.removeChild(document.querySelector('.map__card'));
-        }
-        map.appendChild(renderCard(cardData));
+    if (evt.target && evt.target.closest('.map__pin') && (!(evt.target.closest('.map__pin--main') &&
+        !(evt.target.matches('.map__pin--main'))))) {
+      var id = evt.target.closest('.map__pin').id.slice(4);
+      var index = parseInt(id, 10) - 1; /* (названия начинаются с 1, а первый элемент под индексом 0) */
+      var cardData = window.data.offers[index];
+      if (document.querySelector('.map__card')) {
+        map.removeChild(document.querySelector('.map__card'));
       }
+      map.appendChild(renderCard(cardData));
     }
   };
+
   window.card = {
     render: renderCard,
     openHandler: cardOpenHandler,
-    mouseCloseHandler: cardKeyCloseHandler,
-    keyCloseHandler: cardKeyCloseHandler,
-
   };
 })();

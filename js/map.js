@@ -7,7 +7,11 @@
     X_START_VALUE: 570,
     Y_START_VALUE: 375,
     X_OFFSET: 33,
-    Y_OFFSET: 65,
+    Y_OFFSET: 87,
+    Y_MAX_VALUE: 630,
+    Y_MIN_VALUE: 130,
+    X_MIN_VALUE: 0,
+    X_MAX_VALUE: 1200,
   };
 
   var mainPin = document.querySelector('.map__pin--main');
@@ -28,12 +32,9 @@
       formElement.querySelector('#address').setAttribute('value', Math.floor(MainPinValues.WIDTH + MainPinValues.X_OFFSET) + ',' +
         Math.floor(MainPinValues.HEIGHT + MainPinValues.Y_OFFSET));
       map.classList.remove('map--faded');
-      window.pin.renderElements(window.data.getApartmentOffers(window.data.OBJECTS_QUANTITY));
-
+      window.pin.renderElements(window.data.offers);
+      mainPin.removeEventListener('click', pinMainClickHandler);
     }
-    mainPin.removeEventListener('mousedown', pinMainClickHandler);
-    mainPin.removeEventListener('keydown', pinMainKeydownHandler);
-
   };
   enablePage(false);
 
@@ -42,24 +43,12 @@
    * Обработчик, который при нажатии левой кнопкой мыши на главную метку активирует страницу.
    * @param {object} evt - объект события.
    */
-  var pinMainClickHandler = function (evt) {
-    if (evt.button === 0) {
-      enablePage(true);
-    }
+  var pinMainClickHandler = function () {
+    enablePage(true);
   };
 
-  /**
-   * Обрабочик, который при нажатии клавишей 'Enter' на главную метку активирует страницу.
-   *  @param {object} evt - объект события.
-   */
-  var pinMainKeydownHandler = function (evt) {
-    if (evt.key === 'Enter') {
-      enablePage(true);
-    }
-  };
-  mainPin.addEventListener('mousedown', pinMainClickHandler);
 
-  mainPin.addEventListener('keydown', pinMainKeydownHandler);
+  mainPin.addEventListener('click', pinMainClickHandler);
   document.querySelector('.map__pins').addEventListener('click', window.card.openHandler);
 
 
@@ -88,33 +77,33 @@
         x: event.clientX,
         y: event.clientY
       };
-
-      mainPin.style.top = (mainPin.offsetTop - shift.y) + 'px';
-      mainPin.style.left = (mainPin.offsetLeft - shift.x) + 'px';
+      var top = (mainPin.offsetTop - shift.y);
+      var left = (mainPin.offsetLeft - shift.x);
+      if (left < (MainPinValues.X_MIN_VALUE - MainPinValues.X_OFFSET)) {
+        left = MainPinValues.X_MIN_VALUE - MainPinValues.X_OFFSET;
+      }
+      if (left > (MainPinValues.X_MAX_VALUE - MainPinValues.X_OFFSET)) {
+        left = MainPinValues.X_MAX_VALUE - MainPinValues.X_OFFSET;
+      }
+      if ((top < MainPinValues.Y_MIN_VALUE - MainPinValues.Y_OFFSET)) {
+        top = MainPinValues.Y_MIN_VALUE - MainPinValues.Y_OFFSET;
+      }
+      if ((top > MainPinValues.Y_MAX_VALUE - MainPinValues.Y_OFFSET)) {
+        top = MainPinValues.Y_MAX_VALUE - MainPinValues.Y_OFFSET;
+      }
+      mainPin.style.left = left + 'px';
+      mainPin.style.top = top + 'px';
       document.querySelector('.ad-form').querySelector('#address').setAttribute('value',
-          ((mainPin.offsetLeft - shift.x) + MainPinValues.X_OFFSET) + ',' +
-          ((mainPin.offsetTop - shift.y) + MainPinValues.Y_OFFSET));
+          (left + MainPinValues.X_OFFSET) + ',' +
+          (top + MainPinValues.Y_OFFSET));
     };
+
     var pinMoveHandler = function (moveEvt) {
-      if (parseInt(mainPin.style.left.slice(0, -2), 10) > 1166) {
-        mainPin.style.left = 1166 + 'px';
-      }
-      if (parseInt(mainPin.style.left.slice(0, -2), 10) < -30) {
-        mainPin.style.left = -30 + 'px';
-      }
-      if (parseInt(mainPin.style.top.slice(0, -2), 10) > 565) {
-        mainPin.style.top = 565 + 'px';
-
-      }
-      if (parseInt(mainPin.style.top.slice(0, -2), 10) < 65) {
-        mainPin.style.top = 65 + 'px';
-
-      } else {
-
-        moveEvt.preventDefault();
-        renderAddress(moveEvt);
-      }
+      moveEvt.preventDefault();
+      renderAddress(moveEvt);
     };
+
+
     var pinUpHandler = function (upEvt) {
       document.removeEventListener('mousemove', pinMoveHandler);
       document.removeEventListener('mouseup', pinUpHandler);

@@ -10,8 +10,8 @@
    */
   var renderPin = function (card, index) {
     var pinElement = pinElementTemplate.cloneNode(true);
-    pinElement.style.left = card.offer.location.x - window.data.X_OFFSET + 'px';
-    pinElement.style.top = card.offer.location.y - window.data + 'px';
+    pinElement.style.left = card.location.x - window.data.X_OFFSET + 'px';
+    pinElement.style.top = card.location.y - window.data.Y_OFFSET + 'px';
     pinElement.querySelector('img').setAttribute('src', card.author.avatar);
     pinElement.querySelector('img').setAttribute('alt', card.offer.title);
     pinElement.id = 'pin-' + (parseInt(index, 10) + 1);
@@ -28,13 +28,14 @@
   var renderPinElements = function (offers) {
     var pinElements = document.querySelector('.map__pins');
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < offers.length; i++) {
-      fragment.appendChild(renderPin(offers[i], i));
-    }
+    offers.forEach(function (offer, index) {
+      fragment.appendChild(renderPin(offer, index));
+    });
 
     pinElements.appendChild(fragment);
     return pinElements;
   };
+
 
   window.pin = {
     renderElements: renderPinElements,
