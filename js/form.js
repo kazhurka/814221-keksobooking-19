@@ -11,6 +11,7 @@
       formElement.classList.add('ad-form--disabled');
       document.querySelectorAll('.ad-form__element').forEach(function (item) {
         item.setAttribute('disabled', 'disabled');
+        formElement.reset();
       });
     } else {
       document.querySelectorAll('.ad-form__element').forEach(function (item) {
@@ -21,8 +22,8 @@
   };
 
   /**
-  * Обработчик, которые валидирует поля: количество комнат и количество гостей.
-  */
+   * Обработчик, которые валидирует поля: количество комнат и количество гостей.
+   */
   var roomGuestChangeHandler = function () {
     var Rooms = {
       1: [1],
@@ -86,12 +87,53 @@
       }
     }
   };
+  var form = document.querySelector('.ad-form');
 
+  var formSubmitHandler = function (evt) {
+    evt.preventDefault();
+    var messageSuccessTemplate = document.querySelector('#success').content.querySelector('.success');
+    var messageSuccess = messageSuccessTemplate.cloneNode(true);
+    var messageErrorTemplate = document.querySelector('#error').content.querySelector('.error');
+    var messageError = messageErrorTemplate.cloneNode(true);
+    var closeMessage = function () {
+      if ((document.querySelector('main').querySelector('.success'))) {
+        document.querySelector('main').removeChild(document.querySelector('.success'));
+      } else {
+        document.querySelector('main').removeChild(document.querySelector('.error'));
+      }
+    };
+    var messageKeyCloseHandler = function (evtCl) {
+      if (evtCl.key === 'Escape') {
+        closeMessage();
+      }
+    };
+    var messageMouseCloseHandler = function () {
+      closeMessage();
+
+    };
+    window.upload(new FormData(form), function () {
+      document.querySelector('main').appendChild(messageSuccess);
+      document.addEventListener('keydown', messageKeyCloseHandler);
+      document.addEventListener('mousedown', messageMouseCloseHandler);
+      window.map.enablePage(false);
+    },
+
+    function () {
+      document.querySelector('main').appendChild(messageError);
+      document.addEventListener('keydown', messageKeyCloseHandler);
+      document.addEventListener('mousedown', messageMouseCloseHandler);
+
+    });
+  };
   document.querySelector('#room_number').addEventListener('change', roomGuestChangeHandler);
   document.querySelector('#capacity').addEventListener('change', roomGuestChangeHandler);
   document.querySelector('#timein').addEventListener('change', timesChangeHandler);
   document.querySelector('#timeout').addEventListener('change', timesChangeHandler);
   document.querySelector('#type').addEventListener('change', apartmentPriceChangeHandler);
+  form.querySelector('.ad-form__reset').addEventListener('click', function () {
+    form.reset();
+  });
+  form.addEventListener('submit', formSubmitHandler);
 
   window.form = {
     enableForm: enableForm,
