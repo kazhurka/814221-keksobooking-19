@@ -1,7 +1,7 @@
 'use strict';
 (function () {
 
-  var URL = 'https://js.dump.academy/keksobookingy';
+  var URL = 'https://js.dump.academy/keksobooking';
   window.upload = function (data, successHandler, errorHandler) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
