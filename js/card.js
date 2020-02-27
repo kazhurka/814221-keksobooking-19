@@ -90,16 +90,23 @@
         !(evt.target.matches('.map__pin--main'))))) {
       var id = evt.target.closest('.map__pin').id.slice(4);
       var index = parseInt(id, 10) - 1; /* (названия начинаются с 1, а первый элемент под индексом 0) */
-      var cardData = window.data.offers[index];
-      if (document.querySelector('.map__card')) {
-        map.removeChild(document.querySelector('.map__card'));
-      }
+      var cardData = window.data.filteredOffers[index];
+      removeCard();
       map.appendChild(renderCard(cardData));
+    }
+  };
+  /**
+   * Удаляет  открытую карточку с предложением  с карты.
+   */
+  var removeCard = function () {
+    if (document.querySelector('.map__card')) {
+      document.querySelector('.map__pins').removeChild(document.querySelector('.map__card'));
     }
   };
 
   window.card = {
     render: renderCard,
     openHandler: cardOpenHandler,
+    removeCard: removeCard,
   };
 })();

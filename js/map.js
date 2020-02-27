@@ -23,32 +23,26 @@
     mainPin.addEventListener('click', pinMainClickHandler);
     var formElement = document.querySelector('.ad-form');
     var map = document.querySelector('.map');
-    if (enable === false) {
+    if (!enable) {
       window.form.enableForm(false);
       document.querySelector('.map__filters').classList.add('map__filters--disabled');
       formElement.querySelector('#address').setAttribute('value', 0 + ',' + 0);
       map.classList.add('map--faded');
-      var pins = map.querySelectorAll('.map__pin');
-      pins.forEach(function (item) {
-        if ((item.classList.contains('map__pin--main')) === false) {
-          document.querySelector('.map__pins').removeChild(item);
-        }
-        mainPin.style.left = '570px';
-        mainPin.style.top = '375px';
-        mainPin.addEventListener('click', pinMainClickHandler);
-      });
-
+      window.pin.removePins();
+      window.card.removeCard();
+      mainPin.style.left = '570px';
+      mainPin.style.top = '375px';
+      mainPin.addEventListener('click', pinMainClickHandler);
     } else {
       document.querySelector('.map__filters').classList.remove('map__filters--disabled');
-      window.form.enableForm();
+      window.form.enableForm(enable);
       formElement.querySelector('#address').setAttribute('value', Math.floor(MainPinValues.WIDTH + MainPinValues.X_OFFSET) + ',' +
         Math.floor(MainPinValues.HEIGHT + MainPinValues.Y_OFFSET));
       map.classList.remove('map--faded');
-      window.pin.renderElements(window.data.offers);
-
+      window.data.offersUpdate();
     }
-
   };
+
   enablePage(false);
 
   /**
@@ -62,6 +56,7 @@
   };
 
 
+  mainPin.addEventListener('mousedown', pinMainClickHandler);
   mainPin.addEventListener('click', pinMainClickHandler);
   document.querySelector('.map__pins').addEventListener('click', window.card.openHandler);
 
@@ -117,7 +112,6 @@
         moveEvt.preventDefault();
         renderAddress(moveEvt);
       };
-
 
       var pinUpHandler = function (upEvt) {
         document.removeEventListener('mousemove', pinMoveHandler);

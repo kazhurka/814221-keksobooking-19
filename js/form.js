@@ -7,7 +7,7 @@
    */
   var enableForm = function (enable) {
     var formElement = document.querySelector('.ad-form');
-    if (enable === false) {
+    if (!enable) {
       formElement.classList.add('ad-form--disabled');
       document.querySelectorAll('.ad-form__element').forEach(function (item) {
         item.setAttribute('disabled', 'disabled');
@@ -88,12 +88,12 @@
     }
   };
   var form = document.querySelector('.ad-form');
+  var messageErrorTemplate = document.querySelector('#error').content.querySelector('.error');
+  var messageSuccessTemplate = document.querySelector('#success').content.querySelector('.success');
 
   var formSubmitHandler = function (evt) {
     evt.preventDefault();
-    var messageSuccessTemplate = document.querySelector('#success').content.querySelector('.success');
     var messageSuccess = messageSuccessTemplate.cloneNode(true);
-    var messageErrorTemplate = document.querySelector('#error').content.querySelector('.error');
     var messageError = messageErrorTemplate.cloneNode(true);
     var closeMessage = function () {
       if ((document.querySelector('main').querySelector('.success'))) {
@@ -102,28 +102,32 @@
         document.querySelector('main').removeChild(document.querySelector('.error'));
       }
     };
-    var messageKeyCloseHandler = function (evtCl) {
-      if (evtCl.key === 'Escape') {
+
+    var messageKeyCloseHandler = function (evtClose) {
+      if (evtClose.key === 'Escape') {
         closeMessage();
+        document.removeEventListener('keydown', messageKeyCloseHandler);
+        document.removeEventListener('mousedown', messageMouseCloseHandler);
       }
     };
     var messageMouseCloseHandler = function () {
       closeMessage();
-
+      document.removeEventListener('mousedown', messageMouseCloseHandler);
+      document.removeEventListener('keydown', messageKeyCloseHandler);
     };
-    window.upload(new FormData(form), function () {
+    var messageSuccessHandler = function () {
       document.querySelector('main').appendChild(messageSuccess);
       document.addEventListener('keydown', messageKeyCloseHandler);
       document.addEventListener('mousedown', messageMouseCloseHandler);
       window.map.enablePage(false);
-    },
-
-    function () {
+    };
+    var messageErrorHandler = function () {
       document.querySelector('main').appendChild(messageError);
       document.addEventListener('keydown', messageKeyCloseHandler);
       document.addEventListener('mousedown', messageMouseCloseHandler);
 
-    });
+    };
+    window.upload(new FormData(form), messageSuccessHandler, messageErrorHandler);
   };
   document.querySelector('#room_number').addEventListener('change', roomGuestChangeHandler);
   document.querySelector('#capacity').addEventListener('change', roomGuestChangeHandler);
@@ -131,7 +135,7 @@
   document.querySelector('#timeout').addEventListener('change', timesChangeHandler);
   document.querySelector('#type').addEventListener('change', apartmentPriceChangeHandler);
   form.querySelector('.ad-form__reset').addEventListener('click', function () {
-    form.reset();
+    window.map.enablePage();
   });
   form.addEventListener('submit', formSubmitHandler);
 
