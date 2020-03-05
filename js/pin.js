@@ -51,6 +51,6 @@
   };
   window.pin = {
     renderElements: renderPinElements,
-    removePins: removePins,
+    remove: removePins,
   };
 })();

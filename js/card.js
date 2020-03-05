@@ -107,6 +107,6 @@
   window.card = {
     render: renderCard,
     openHandler: cardOpenHandler,
-    removeCard: removeCard,
+    remove: removeCard,
   };
 })();

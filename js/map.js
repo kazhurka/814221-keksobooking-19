@@ -14,6 +14,7 @@
     X_MAX_VALUE: 1200,
   };
 
+
   var mainPin = document.querySelector('.map__pin--main');
   /**
    * Функция активациии или дезактивации страницы.
@@ -28,8 +29,9 @@
       document.querySelector('.map__filters').classList.add('map__filters--disabled');
       formElement.querySelector('#address').setAttribute('value', 0 + ',' + 0);
       map.classList.add('map--faded');
-      window.pin.removePins();
-      window.card.removeCard();
+      window.pin.remove();
+      window.card.remove();
+      document.querySelector('.map__filters').reset();
       mainPin.style.left = '570px';
       mainPin.style.top = '375px';
       mainPin.addEventListener('click', pinMainClickHandler);

@@ -16,6 +16,11 @@
     offers = offersData;
     document.querySelector('#housing-type').addEventListener('change', offersUpdate);
     document.querySelector('#housing-price').addEventListener('change', offersUpdate);
+    document.querySelector('#housing-rooms').addEventListener('change', offersUpdate);
+    document.querySelector('#housing-guests').addEventListener('change', offersUpdate);
+    document.querySelectorAll('.map__checkbox').forEach(function (checkbox) {
+      checkbox.addEventListener('click', offersUpdate);
+    });
   };
 
   /**
@@ -43,6 +48,7 @@
   var getFilterValue = function (select) {
     var filterValue = document.querySelector('#housing-' + select).value;
     return filterValue;
+
   };
 
   var filteredOffers;
@@ -58,47 +64,134 @@
         return it.offer.type === getFilterValue('type');
       });
     }
-    if (filteredOffers.length > 5) {
-      filteredOffers = filteredOffers.slice(0, 5);
-    }
+
     return filteredOffers;
 
   };
   /**
-  * Создает новый массив с предложениями на базе данного, согласно выбранной "цене"
-  * @return {array} - новый  массив
-  */
+   * Создает новый массив с предложениями на базе данного, согласно выбранной "цене"
+   * @return {array} - новый  массив
+   */
   var filterOffersPrice = function () {
-    var priceValue = getFilterValue('price');
-    switch (priceValue) {
-      case 'low':
-        filteredOffers = filteredOffers.filter(function (it) {
-          return it.offer.price < 10000;
-        });
-        break;
-      case 'middle':
-        filteredOffers = filteredOffers.filter(function (it) {
-          return it.offer.price > 10000 && it.offer.price < 50000;
-        });
-        break;
-      case 'high':
-        filteredOffers = filteredOffers.filter(function (it) {
-          return it.offer.price > 50000;
-        });
-        break;
-      default:
-        filteredOffers = filteredOffers;
-    }
+    var priceValue = getFilterValue('price').toUpperCase();
+
+    var Filtersdict = {
+      'LOW': function (it) {
+        return it.offer.price < 10000;
+      },
+      'MIDDLE': function (it) {
+        return it.offer.price > 10000 && it.offer.price < 50000;
+      },
+      'HIGH': function (it) {
+        return it.offer.price > 50000;
+      },
+      'ANY': function () {
+        return true;
+      }
+    };
+    filteredOffers = filteredOffers.filter(Filtersdict[priceValue]);
     return filteredOffers;
   };
 
+  var filterOffersGuests = function () {
+    var guestsValue = getFilterValue('guests').toUpperCase();
+    var Filterdict = {
+      '1': function (it) {
+        return it.offer.rooms >= 1;
+      },
+      '2': function (it) {
+        return it.offer.rooms >= 2;
+      },
+      '0': function (it) {
+        return it.offer.rooms >= 0;
+      },
+      'ANY': function () {
+        return true;
+      },
+    };
+    filteredOffers = filteredOffers.filter(Filterdict[guestsValue]);
+    return filteredOffers;
+  };
+
+  var filterOffersRooms = function () {
+    var roomsValue = getFilterValue('rooms').toUpperCase();
+    var Filterdict = {
+      '1': function (it) {
+        return it.offer.rooms === 1;
+      },
+      '2': function (it) {
+        return it.offer.rooms === 2;
+      },
+      '3': function (it) {
+        return it.offer.rooms === 3;
+      },
+      'ANY': function () {
+        return true;
+      }
+    };
+    filteredOffers = filteredOffers.filter(Filterdict[roomsValue]);
+    return filteredOffers;
+  };
+
+
+  var getAllPressedFeatures = function () {
+    var pressedFeatures = [];
+    document.querySelectorAll('.map__checkbox').forEach(function (feature) {
+      if (feature.checked) {
+        pressedFeatures.push(feature.value.toUpperCase());
+      }
+    });
+    return pressedFeatures;
+
+  };
+  var filterOfferFeatures = function () {
+    var pressedFeatures = getAllPressedFeatures();
+    var Filtersdict = {
+      'WIFI': function (it) {
+        return it.offer.features.includes('wifi');
+      },
+      'DISHWASHER': function (it) {
+        return it.offer.features.includes('dishwasher');
+      },
+      'PARKING': function (it) {
+        return it.offer.features.includes('parking');
+      },
+      'WASHER': function (it) {
+        return it.offer.features.includes('washer');
+      },
+      'ELEVATOR': function (it) {
+        return it.offer.features.includes('elevator');
+      },
+      'CONDITIONER': function (it) {
+        return it.offer.features.includes('conditioner');
+      },
+    };
+    pressedFeatures.forEach(function (it) {
+      filteredOffers = filteredOffers.filter(Filtersdict[it]);
+    });
+    return filteredOffers;
+  };
+  var lastTimeout;
   var offersUpdate = function () {
-    window.pin.removePins();
-    window.card.removeCard();
-    filterOffersType();
-    filterOffersPrice();
-    window.pin.renderElements(filteredOffers);
-    window.data.filteredOffers = filteredOffers;
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(function () {
+      window.pin.remove();
+      window.card.remove();
+      filterOffersType();
+      filterOffersPrice();
+      filterOffersRooms();
+      filterOffersGuests();
+      filterOfferFeatures();
+      if (filteredOffers.length > 5) {
+        filteredOffers = filteredOffers.slice(0, 5);
+      }
+      window.pin.renderElements(filteredOffers);
+      window.data.filteredOffers = filteredOffers;
+    }, 500);
+
+
   };
 
   window.data = {

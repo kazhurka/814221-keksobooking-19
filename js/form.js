@@ -127,7 +127,7 @@
       document.addEventListener('mousedown', messageMouseCloseHandler);
 
     };
-    window.upload(new FormData(form), messageSuccessHandler, messageErrorHandler);
+    window.load.upload(new FormData(form), messageSuccessHandler, messageErrorHandler);
   };
   document.querySelector('#room_number').addEventListener('change', roomGuestChangeHandler);
   document.querySelector('#capacity').addEventListener('change', roomGuestChangeHandler);
