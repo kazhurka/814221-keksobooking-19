@@ -12,6 +12,7 @@
       document.querySelectorAll('.ad-form__element').forEach(function (item) {
         item.setAttribute('disabled', 'disabled');
         formElement.reset();
+        window.photo.remove();
       });
     } else {
       document.querySelectorAll('.ad-form__element').forEach(function (item) {

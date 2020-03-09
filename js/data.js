@@ -1,12 +1,12 @@
 'use strict';
 (function () {
-  var APARTMENT_TYPES_RUSSIAN = {
+  var APARTMENT_RUSSIAN_TYPES = {
     'palace': 'дворец',
     'flat': 'квартира',
     'house': 'дом',
     'bungalo': 'бунгало',
   };
-  var Filterspricesdict = {
+  var Filtersprices = {
     'LOW': function (it) {
       return it.offer.price < 10000;
     },
@@ -20,7 +20,7 @@
       return true;
     }
   };
-  var Filterguestsdict = {
+  var Filterguests = {
     '1': function (it) {
       return it.offer.rooms >= 1;
     },
@@ -34,7 +34,7 @@
       return true;
     },
   };
-  var Filterroomsdict = {
+  var Filterrooms = {
     '1': function (it) {
       return it.offer.rooms === 1;
     },
@@ -48,7 +48,7 @@
       return true;
     }
   };
-  var Filterfeaturesdict = {
+  var Filterfeatures = {
     'WIFI': function (it) {
       return it.offer.features.includes('wifi');
     },
@@ -132,19 +132,19 @@
    */
   var filterOffersPrice = function () {
     var priceValue = getFilterValue('price').toUpperCase();
-    filteredOffers = filteredOffers.filter(Filterspricesdict[priceValue]);
+    filteredOffers = filteredOffers.filter(Filtersprices[priceValue]);
     return filteredOffers;
   };
 
   var filterOffersGuests = function () {
     var guestsValue = getFilterValue('guests').toUpperCase();
-    filteredOffers = filteredOffers.filter(Filterguestsdict[guestsValue]);
+    filteredOffers = filteredOffers.filter(Filterguests[guestsValue]);
     return filteredOffers;
   };
 
   var filterOffersRooms = function () {
     var roomsValue = getFilterValue('rooms').toUpperCase();
-    filteredOffers = filteredOffers.filter(Filterroomsdict[roomsValue]);
+    filteredOffers = filteredOffers.filter(Filterrooms[roomsValue]);
     return filteredOffers;
   };
 
@@ -162,7 +162,7 @@
   var filterOfferFeatures = function () {
     var pressedFeatures = getAllPressedFeatures();
     pressedFeatures.forEach(function (it) {
-      filteredOffers = filteredOffers.filter(Filterfeaturesdict[it]);
+      filteredOffers = filteredOffers.filter(Filterfeatures[it]);
     });
     return filteredOffers;
   };
@@ -189,7 +189,7 @@
 
   window.data = {
     OBJECTS_QUANTITY: OBJECTS_QUANTITY,
-    APARTMENT_TYPES_RUSSIAN: APARTMENT_TYPES_RUSSIAN,
+    APARTMENT_RUSSIAN_TYPES: APARTMENT_RUSSIAN_TYPES,
     filteredOffers: filteredOffers,
     offersUpdate: offersUpdate,
   };

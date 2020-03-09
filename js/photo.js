@@ -45,7 +45,15 @@
       reader.readAsDataURL(file);
     }
   };
-
+  var removePhotos = function () {
+    while (photoPreview.firstChild) {
+      photoPreview.removeChild(photoPreview.firstChild);
+    }
+    avatarPreview.src = 'img/muffin-grey.svg';
+  };
   fileAvatarChooser.addEventListener('change', uploadAvatarHandler);
   fileOfferChooser.addEventListener('change', uploadPhotoHandler);
+  window.photo = {
+    remove: removePhotos,
+  };
 })();

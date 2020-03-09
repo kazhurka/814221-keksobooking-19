@@ -23,7 +23,6 @@
      */
 
     var getFeaturesInElement = function (features) {
-      // APARTMENT_EXAMPLE_FEATURES нужен лишь для сравнения и последующего удаления из dom, данные берутся из card
       ALL_FEATURES.forEach(function (feature) {
         if (features.indexOf(feature, 0) === -1) {
           cardElement.querySelector('.popup__features').removeChild(cardElement.querySelector('.popup__feature--' + feature));
@@ -49,7 +48,7 @@
     cardElement.querySelector('.popup__title').textContent = card.offer.title;
     cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
     cardElement.querySelector('.popup__text--price').textContent = card.offer.price + 'Р/ночь';
-    cardElement.querySelector('.popup__type').textContent = window.data.APARTMENT_TYPES_RUSSIAN[card.offer.type];
+    cardElement.querySelector('.popup__type').textContent = window.data.APARTMENT_RUSSIAN_TYPES[card.offer.type];
     cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' ' + 'комнат(ы) для' + ' ' + card.offer.guests + ' ' + 'гостей';
     cardElement.querySelector('.popup__text--time').textContent = 'Заезд после' + ' ' + card.offer.checkin + ',' + ' ' + 'выезд до' + ' ' + card.offer.checkout;
     getFeaturesInElement(card.offer.features);
