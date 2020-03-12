@@ -32,7 +32,10 @@
     var pinElements = document.querySelector('.map__pins');
     var fragment = document.createDocumentFragment();
     offers.forEach(function (offer, index) {
-      fragment.appendChild(renderPin(offer, index));
+      if (offer.offer) {
+        fragment.appendChild(renderPin(offer, index));
+      }
+
     });
 
     pinElements.appendChild(fragment);

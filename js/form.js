@@ -3,7 +3,7 @@
 (function () {
   /**
    * Функция, которая включает или выключает форму.
-   * @param {boolean} enable - если false, то выключает форму, если true - включает.
+   * @param {boolean} enable - если enable, то включает форму, если false - выключает.
    */
   var enableForm = function (enable) {
     var formElement = document.querySelector('.ad-form');
@@ -91,11 +91,17 @@
   var form = document.querySelector('.ad-form');
   var messageErrorTemplate = document.querySelector('#error').content.querySelector('.error');
   var messageSuccessTemplate = document.querySelector('#success').content.querySelector('.success');
-
+  /**
+   * Обработчик  отправки формы на сервер, выводит  на экран сообщения о статусе отправки.
+   * @param {object} evt - объект события
+   */
   var formSubmitHandler = function (evt) {
     evt.preventDefault();
     var messageSuccess = messageSuccessTemplate.cloneNode(true);
     var messageError = messageErrorTemplate.cloneNode(true);
+    /**
+     * Удаляет сообщение о статусе отправки из DOM дерева.
+     */
     var closeMessage = function () {
       if ((document.querySelector('main').querySelector('.success'))) {
         document.querySelector('main').removeChild(document.querySelector('.success'));
@@ -104,6 +110,10 @@
       }
     };
 
+    /**
+     * Обрабочик закрытия сообщения по нажатию на клавишу Escape.
+     * @param {object} evtClose - объект события
+     */
     var messageKeyCloseHandler = function (evtClose) {
       if (evtClose.key === 'Escape') {
         closeMessage();
@@ -111,17 +121,28 @@
         document.removeEventListener('mousedown', messageMouseCloseHandler);
       }
     };
+    /**
+     * Обработчик закрытия сообщения по нажатию на кнопку мыши.
+     */
     var messageMouseCloseHandler = function () {
       closeMessage();
       document.removeEventListener('mousedown', messageMouseCloseHandler);
       document.removeEventListener('keydown', messageKeyCloseHandler);
     };
+
+    /**
+     * Обработчик успешной отправки формы.
+     */
     var messageSuccessHandler = function () {
       document.querySelector('main').appendChild(messageSuccess);
       document.addEventListener('keydown', messageKeyCloseHandler);
       document.addEventListener('mousedown', messageMouseCloseHandler);
       window.map.enablePage(false);
     };
+
+    /**
+     * Обработчик ошибки в случае отправки формы.
+     */
     var messageErrorHandler = function () {
       document.querySelector('main').appendChild(messageError);
       document.addEventListener('keydown', messageKeyCloseHandler);

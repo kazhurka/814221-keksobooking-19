@@ -27,22 +27,31 @@
         if (features.indexOf(feature, 0) === -1) {
           cardElement.querySelector('.popup__features').removeChild(cardElement.querySelector('.popup__feature--' + feature));
         }
+
       });
+      if (card.offer.features.length === 0) {
+        cardElement.querySelector('.popup__features').remove();
+      }
     };
 
     var cardPhotosTemplate = document.querySelector('#card').content.querySelector('.popup__photos');
     var cardImgTemplate = cardPhotosTemplate.querySelector('img');
+    var cardPhotos = cardElement.querySelector('.popup__photos');
     /**
      * Добавляет фото из массива в карточку
-     * @param {array} photos -набор фотографий жилья для примера
+     * @param {array} photosData - фотографии жилья
      */
-    var getPhotosInElement = function (photos) {
-      photos.forEach(function (item) {
+    var getPhotosInElement = function (photosData) {
+      photosData.forEach(function (item) {
         var imgOfElement = cardImgTemplate.cloneNode(true);
         imgOfElement.setAttribute('src', item);
-        cardElement.querySelector('.popup__photos').appendChild(imgOfElement);
+        cardPhotos.appendChild(imgOfElement);
+
       });
-      cardElement.querySelector('.popup__photos').removeChild(cardElement.querySelector('.popup__photos').querySelector('img'));
+      if (card.offer.photos.length === 0) {
+        cardPhotos.remove();
+      }
+      cardPhotos.removeChild(cardPhotos.querySelector('img'));
     };
     cardElement.querySelector('.popup__avatar').setAttribute('src', card.author.avatar);
     cardElement.querySelector('.popup__title').textContent = card.offer.title;
@@ -58,6 +67,12 @@
     document.addEventListener('keydown', cardKeyCloseHandler);
     return cardElement;
   };
+  var removeActivePin = function () {
+    var activePin = document.querySelector('.map__pin--active');
+    if (activePin) {
+      activePin.classList.remove('map__pin--active');
+    }
+  };
 
   /**
    * Обработчик закрытия карточки по клику  на кнопку 'крестик' .
@@ -65,6 +80,7 @@
    */
   var cardButtonCloseHandler = function () {
     document.querySelector('.map__pins').removeChild(document.querySelector('.map__card'));
+    removeActivePin();
   };
 
   /**
@@ -75,6 +91,7 @@
   var cardKeyCloseHandler = function (evt) {
     if (evt.key === 'Escape') {
       document.querySelector('.map__pins').removeChild(document.querySelector('.map__card'));
+      removeActivePin();
     }
   };
 
@@ -88,10 +105,12 @@
     if (evt.target && evt.target.closest('.map__pin') && (!(evt.target.closest('.map__pin--main') &&
         !(evt.target.matches('.map__pin--main'))))) {
       var id = evt.target.closest('.map__pin').id.slice(4);
-      var index = parseInt(id, 10) - 1; /* (названия начинаются с 1, а первый элемент под индексом 0) */
+      var index = parseInt(id, 10) - 1;
       var cardData = window.data.filteredOffers[index];
       removeCard();
       map.appendChild(renderCard(cardData));
+      removeActivePin();
+      evt.target.closest('button').classList.add('map__pin--active');
     }
   };
   /**
@@ -101,6 +120,7 @@
     if (document.querySelector('.map__card')) {
       document.querySelector('.map__pins').removeChild(document.querySelector('.map__card'));
     }
+
   };
 
   window.card = {

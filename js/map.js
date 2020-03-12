@@ -7,6 +7,7 @@
     X_START_VALUE: 570,
     Y_START_VALUE: 375,
     X_OFFSET: 33,
+    Y_OFFSET_INITIAL: 33,
     Y_OFFSET: 87,
     Y_MAX_VALUE: 630,
     Y_MIN_VALUE: 130,
@@ -18,7 +19,7 @@
   var mainPin = document.querySelector('.map__pin--main');
   /**
    * Функция активациии или дезактивации страницы.
-   * @param {boolean} enable - если true, то страница активируется, если false - дезактивируется.
+   * @param {boolean} enable - если enable, то страница активируется, если false - дезактивируется.
    */
   var enablePage = function (enable) {
     mainPin.addEventListener('click', pinMainClickHandler);
@@ -27,7 +28,8 @@
     if (!enable) {
       window.form.enableForm(false);
       document.querySelector('.map__filters').classList.add('map__filters--disabled');
-      formElement.querySelector('#address').setAttribute('value', 0 + ',' + 0);
+      formElement.querySelector('#address').setAttribute('value',
+          (MainPinValues.X_START_VALUE + MainPinValues.X_OFFSET) + ',' + (MainPinValues.Y_START_VALUE + MainPinValues.Y_OFFSET_INITIAL));
       map.classList.add('map--faded');
       window.pin.remove();
       window.card.remove();

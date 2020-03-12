@@ -6,6 +6,11 @@
     OK: 200
   };
   var TIMEOUT_IN_MS = 10000;
+  /**
+   * Обработчик загрузки данных о предложениях с сервера.
+   * @param {function} successHandler - обработчик успешной загрузки данных
+   * @param {function} errorHandler  - обработчик ошибки при загрузке данных
+   */
   var load = function (successHandler, errorHandler) {
     var URL = 'https://js.dump.academy/keksobooking/data';
     var xhr = new XMLHttpRequest();
@@ -33,7 +38,12 @@
     xhr.send();
   };
 
-
+  /**
+   * Обработчик отправки данных формы на сервер.
+   * @param {object} data - данные полученные с формы
+   * @param {function} successHandler  - обработчки успешной отправки данных на сервер
+   * @param {function} errorHandler -  обработчик ошибки при отправке данных на сервер
+   */
   var upload = function (data, successHandler, errorHandler) {
     var URL = 'https://js.dump.academy/keksobooking';
     var xhr = new XMLHttpRequest();

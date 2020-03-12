@@ -136,19 +136,29 @@
     return filteredOffers;
   };
 
+  /**
+   * Создает новый массив с предложениями на базе данного, согласно выбранному количеству гостей.
+   * @return {array} - новый  массив
+   */
   var filterOffersGuests = function () {
     var guestsValue = getFilterValue('guests').toUpperCase();
     filteredOffers = filteredOffers.filter(Filterguests[guestsValue]);
     return filteredOffers;
   };
-
+  /**
+   * Создает новый массив с предложениями на базе данного, согласно выбранному количеству комнат.
+   * @return {array} - новый  массив
+   */
   var filterOffersRooms = function () {
     var roomsValue = getFilterValue('rooms').toUpperCase();
     filteredOffers = filteredOffers.filter(Filterrooms[roomsValue]);
     return filteredOffers;
   };
 
-
+  /**
+   * Создает массив со  всеми выбранными(нажатыми) опциями жилья(features).
+   * @return {array} - массив с опциями
+   */
   var getAllPressedFeatures = function () {
     var pressedFeatures = [];
     document.querySelectorAll('.map__checkbox').forEach(function (feature) {
@@ -159,6 +169,11 @@
     return pressedFeatures;
 
   };
+
+  /**
+   * Создает новый массив с предложениями на базе данного, согласно выбранным опциям жилья.
+   * @return {array} - новый  массив
+   */
   var filterOfferFeatures = function () {
     var pressedFeatures = getAllPressedFeatures();
     pressedFeatures.forEach(function (it) {
@@ -167,10 +182,18 @@
     return filteredOffers;
   };
   var lastTimeout;
+  /**
+   * Обновляет  метки на карте согласно примененным фильтрам.
+   */
   var offersUpdate = function () {
     if (lastTimeout) {
       window.clearTimeout(lastTimeout);
     }
+
+    /**
+     * Устанавливает время  обновления списка элементов при переключении фильтра .
+     */
+    var TIME_IN_MS = 500;
     lastTimeout = window.setTimeout(function () {
       window.pin.remove();
       window.card.remove();
@@ -184,7 +207,7 @@
       }
       window.pin.renderElements(filteredOffers);
       window.data.filteredOffers = filteredOffers;
-    }, 500);
+    }, TIME_IN_MS);
   };
 
   window.data = {

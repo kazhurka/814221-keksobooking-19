@@ -5,7 +5,9 @@
   var photoPreview = document.querySelector('.ad-form__photo');
   var fileAvatarChooser = document.querySelector('.ad-form__field input[type=file]');
   var avatarPreview = document.querySelector('.ad-form-header__preview img');
-
+  /**
+   * Обрабочик загрузки аватара в форме .
+   */
   var uploadAvatarHandler = function () {
     var file = fileAvatarChooser.files[0];
     var fileName = file.name.toLowerCase();
@@ -23,6 +25,9 @@
     }
   };
 
+  /**
+   * Обработчик загрузки фотографий жилья в форме.
+   */
   var uploadPhotoHandler = function () {
     var file = fileOfferChooser.files[0];
     var fileName = file.name.toLowerCase();
@@ -39,12 +44,17 @@
         photo.src = reader.result;
         photo.width = '70';
         photo.height = '70';
+        photoPreview.textContent = '';
         photoPreview.appendChild(photo);
       });
 
       reader.readAsDataURL(file);
     }
   };
+
+  /**
+   * Сбрасывает поле загрузки фотографий к изначалному состоянию.
+   */
   var removePhotos = function () {
     while (photoPreview.firstChild) {
       photoPreview.removeChild(photoPreview.firstChild);
