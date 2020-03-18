@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   /**
    * Функция, которая включает или выключает форму.
    * @param {boolean} enable - если enable, то включает форму, если false - выключает.
@@ -22,6 +23,8 @@
     }
   };
 
+  var capacityInput = document.querySelector('#capacity');
+
   /**
    * Обработчик, которые валидирует поля: количество комнат и количество гостей.
    */
@@ -36,12 +39,12 @@
     var guests = parseInt(document.querySelector('#capacity').value, 10);
     if ((Rooms[rooms].indexOf(guests)) === -1) {
       if (rooms < guests) {
-        document.querySelector('#capacity').setCustomValidity('Увеличьте количество комнат или уменьшите количество гостей');
+        capacityInput.setCustomValidity('Увеличьте количество комнат или уменьшите количество гостей');
       } else {
-        document.querySelector('#capacity').setCustomValidity('Для такого количества комнат доступно только значение "не для гостей"');
+        capacityInput.setCustomValidity('Для такого количества комнат доступно только значение "не для гостей"');
       }
     } else {
-      document.querySelector('#capacity').setCustomValidity('');
+      capacityInput.setCustomValidity('');
     }
   };
 
@@ -53,14 +56,13 @@
    * @param {object} evt - объект события.
    */
   var timesChangeHandler = function (evt) {
-    var checkinIndexTime = checkinTime.selectedIndex;
-    var checkoutIndexTime = checkoutTime.selectedIndex;
     if (evt.target.matches('#timein')) {
-      checkoutTime.selectedIndex = checkinIndexTime;
+      checkoutTime.value = checkinTime.value;
     } else {
-      checkinTime.selectedIndex = checkoutIndexTime;
+      checkinTime.value = checkoutTime.value;
     }
   };
+
   /**
    * Добавляет значение в атрибут 'min' поля 'цена'.
    * @param {number} price - минимальная цена жилья
@@ -70,27 +72,27 @@
     apartmenttPrice.setAttribute('min', price);
     apartmenttPrice.setAttribute('placeholder', price);
   };
+
   /**
    * Обработчик, устанавливает зависимость поля  'цена' от  поля 'тип жилья'.
    * @param {object} evt - объект события.
    */
   var apartmentPriceChangeHandler = function (evt) {
-    var typeIndex = evt.target.selectedIndex;
+    var type = evt.target.value;
     var Prices = {
-      0: 0,
-      1: 1000,
-      2: 5000,
-      3: 10000,
+      'bungalo': 0,
+      'flat': 1000,
+      'house': 5000,
+      'palace': 10000,
     };
-    for (var i = 0; i < 4; i++) {
-      if (typeIndex === i) {
-        setPrice(Prices[i]);
-      }
-    }
+    setPrice(Prices[type]);
   };
+
   var form = document.querySelector('.ad-form');
   var messageErrorTemplate = document.querySelector('#error').content.querySelector('.error');
   var messageSuccessTemplate = document.querySelector('#success').content.querySelector('.success');
+  var main = document.querySelector('main');
+
   /**
    * Обработчик  отправки формы на сервер, выводит  на экран сообщения о статусе отправки.
    * @param {object} evt - объект события
@@ -99,14 +101,17 @@
     evt.preventDefault();
     var messageSuccess = messageSuccessTemplate.cloneNode(true);
     var messageError = messageErrorTemplate.cloneNode(true);
+
     /**
      * Удаляет сообщение о статусе отправки из DOM дерева.
      */
     var closeMessage = function () {
-      if ((document.querySelector('main').querySelector('.success'))) {
-        document.querySelector('main').removeChild(document.querySelector('.success'));
+      var successWindow = document.querySelector('.success');
+      var errorWindow = document.querySelector('.error');
+      if (main.contains(successWindow)) {
+        main.removeChild(successWindow);
       } else {
-        document.querySelector('main').removeChild(document.querySelector('.error'));
+        main.removeChild(errorWindow);
       }
     };
 
@@ -115,18 +120,19 @@
      * @param {object} evtClose - объект события
      */
     var messageKeyCloseHandler = function (evtClose) {
-      if (evtClose.key === 'Escape') {
+      if (evtClose.key === window.util.ESCAPE) {
         closeMessage();
         document.removeEventListener('keydown', messageKeyCloseHandler);
-        document.removeEventListener('mousedown', messageMouseCloseHandler);
+        document.removeEventListener('click', messageMouseCloseHandler);
       }
     };
+
     /**
      * Обработчик закрытия сообщения по нажатию на кнопку мыши.
      */
     var messageMouseCloseHandler = function () {
       closeMessage();
-      document.removeEventListener('mousedown', messageMouseCloseHandler);
+      document.removeEventListener('click', messageMouseCloseHandler);
       document.removeEventListener('keydown', messageKeyCloseHandler);
     };
 
@@ -136,19 +142,30 @@
     var messageSuccessHandler = function () {
       document.querySelector('main').appendChild(messageSuccess);
       document.addEventListener('keydown', messageKeyCloseHandler);
-      document.addEventListener('mousedown', messageMouseCloseHandler);
+      document.addEventListener('click', messageMouseCloseHandler);
       window.map.enablePage(false);
     };
 
     /**
      * Обработчик ошибки в случае отправки формы.
+     *  @param {string} errorText - сообщение об ошибке, переданное сервером.
      */
-    var messageErrorHandler = function () {
+    var messageErrorHandler = function (errorText) {
       document.querySelector('main').appendChild(messageError);
+      var text = document.createElement('p');
+      text.textContent = errorText;
+      var style = text.style;
+      style.left = 0;
+      style.right = 0;
+      style.color = '#ffffff;';
+      style.fontSize = '50 px';
+      style.fontWeight = '700';
+      style.color = '#ff5635';
+      messageError.appendChild(text);
       document.addEventListener('keydown', messageKeyCloseHandler);
-      document.addEventListener('mousedown', messageMouseCloseHandler);
-
+      document.addEventListener('click', messageMouseCloseHandler);
     };
+
     window.server.upload(new FormData(form), messageSuccessHandler, messageErrorHandler);
   };
   document.querySelector('#room_number').addEventListener('change', roomGuestChangeHandler);
@@ -162,7 +179,7 @@
   form.addEventListener('submit', formSubmitHandler);
 
   window.form = {
-    enableForm: enableForm,
+    enable: enableForm,
   };
 
 })();

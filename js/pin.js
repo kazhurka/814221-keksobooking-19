@@ -13,6 +13,7 @@
    */
   var renderPin = function (card, index) {
     var pinElement = pinElementTemplate.cloneNode(true);
+    pinElement.classList.add('map__pin--offer');
     pinElement.style.left = card.location.x - Coordinates.X_OFFSET + 'px';
     pinElement.style.top = card.location.y - Coordinates.Y_OFFSET + 'px';
     pinElement.querySelector('img').setAttribute('src', card.author.avatar);
@@ -41,6 +42,7 @@
     pinElements.appendChild(fragment);
     return pinElements;
   };
+
   /**
    * Удаляет все метки(кроме главной) с карты
    */
@@ -52,6 +54,7 @@
       }
     });
   };
+
   window.pin = {
     renderElements: renderPinElements,
     remove: removePins,

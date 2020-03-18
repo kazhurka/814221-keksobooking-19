@@ -1,6 +1,8 @@
 'use strict';
 (function () {
   var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+  var PHOTO_WIDTH = '70';
+  var PHOTO_HEIGHT = '70';
   var fileOfferChooser = document.querySelector('.ad-form__upload input[type=file]');
   var photoPreview = document.querySelector('.ad-form__photo');
   var fileAvatarChooser = document.querySelector('.ad-form__field input[type=file]');
@@ -42,8 +44,8 @@
 
         var photo = document.createElement('img');
         photo.src = reader.result;
-        photo.width = '70';
-        photo.height = '70';
+        photo.width = PHOTO_WIDTH;
+        photo.height = PHOTO_HEIGHT;
         photoPreview.textContent = '';
         photoPreview.appendChild(photo);
       });

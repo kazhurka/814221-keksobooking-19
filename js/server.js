@@ -1,11 +1,42 @@
 'use strict';
 
 (function () {
-
+  var TIMEOUT_IN_MS = 10000;
   var StatusCode = {
     OK: 200
   };
-  var TIMEOUT_IN_MS = 10000;
+
+  /**
+   * Создает xhr и обрабатывает ответ сервера.
+   * @param {function} xhrSuccessHandler -  вызывается в случае успеха
+   * @param {function} xhrErrorHandler  - вызывается в случае ошибки
+   * @return {object} - xhr
+   */
+  var setXhr = function (xhrSuccessHandler, xhrErrorHandler) {
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+    xhr.addEventListener('load', function () {
+      switch (xhr.status) {
+        case StatusCode.OK:
+          xhrSuccessHandler(xhr.response);
+          break;
+        default:
+          xhrErrorHandler('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
+      }
+      xhr.addEventListener('error', function () {
+        xhrErrorHandler('Произошла ошибка соединения');
+      });
+
+      xhr.addEventListener('timeout', function () {
+        xhrErrorHandler('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
+      });
+
+      xhr.timeout = TIMEOUT_IN_MS;
+    });
+    return xhr;
+  };
+
+
   /**
    * Обработчик загрузки данных о предложениях с сервера.
    * @param {function} successHandler - обработчик успешной загрузки данных
@@ -13,27 +44,8 @@
    */
   var load = function (successHandler, errorHandler) {
     var URL = 'https://js.dump.academy/keksobooking/data';
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.addEventListener('load', function () {
-      switch (xhr.status) {
-        case StatusCode.OK:
-          successHandler(xhr.response);
-          break;
+    var xhr = setXhr(successHandler, errorHandler);
 
-        default:
-          errorHandler('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
-      }
-    });
-    xhr.addEventListener('error', function () {
-      errorHandler('Произошла ошибка соединения');
-    });
-
-    xhr.addEventListener('timeout', function () {
-      errorHandler('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
-    });
-
-    xhr.timeout = TIMEOUT_IN_MS;
     xhr.open('GET', URL);
     xhr.send();
   };
@@ -45,21 +57,9 @@
    * @param {function} errorHandler -  обработчик ошибки при отправке данных на сервер
    */
   var upload = function (data, successHandler, errorHandler) {
+    var xhr = setXhr(successHandler, errorHandler);
     var URL = 'https://js.dump.academy/keksobooking';
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-
-    xhr.addEventListener('load', function () {
-      switch (xhr.status) {
-        case 200:
-          successHandler(xhr.response);
-          break;
-
-        default:
-          errorHandler(xhr.response);
-      }
-    });
-
+    xhr.timeout = TIMEOUT_IN_MS;
     xhr.open('POST', URL);
     xhr.send(data);
   };

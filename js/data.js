@@ -6,7 +6,10 @@
     'house': 'дом',
     'bungalo': 'бунгало',
   };
-  var Filtersprices = {
+
+  var TIME_IN_MS = 500;
+  var PINS_QUANTITY = 5;
+  var FiltersPrices = {
     'LOW': function (it) {
       return it.offer.price < 10000;
     },
@@ -20,85 +23,8 @@
       return true;
     }
   };
-  var Filterguests = {
-    '1': function (it) {
-      return it.offer.rooms >= 1;
-    },
-    '2': function (it) {
-      return it.offer.rooms >= 2;
-    },
-    '0': function (it) {
-      return it.offer.rooms >= 0;
-    },
-    'ANY': function () {
-      return true;
-    },
-  };
-  var Filterrooms = {
-    '1': function (it) {
-      return it.offer.rooms === 1;
-    },
-    '2': function (it) {
-      return it.offer.rooms === 2;
-    },
-    '3': function (it) {
-      return it.offer.rooms === 3;
-    },
-    'ANY': function () {
-      return true;
-    }
-  };
-  var Filterfeatures = {
-    'WIFI': function (it) {
-      return it.offer.features.includes('wifi');
-    },
-    'DISHWASHER': function (it) {
-      return it.offer.features.includes('dishwasher');
-    },
-    'PARKING': function (it) {
-      return it.offer.features.includes('parking');
-    },
-    'WASHER': function (it) {
-      return it.offer.features.includes('washer');
-    },
-    'ELEVATOR': function (it) {
-      return it.offer.features.includes('elevator');
-    },
-    'CONDITIONER': function (it) {
-      return it.offer.features.includes('conditioner');
-    },
-  };
-  var OBJECTS_QUANTITY = 8;
-  var offers;
-  /**
-   * Обрабочик успешной загрузки данных
-   * @param {data} offersData - полученные с сервера данные
-   */
-  var dataSuccessHandler = function (offersData) {
-    offers = offersData;
-    document.querySelector('.map__filters').addEventListener('change', offersUpdate);
-    document.querySelectorAll('.map__checkbox').forEach(function (checkbox) {
-      checkbox.addEventListener('click', offersUpdate);
-    });
-  };
 
-  /**
-   * Обработчик ошибки при загрузке данных
-   * @param {string} errorMessage - сообщение об ошибке
-   */
-  var dataErrorHandler = function (errorMessage) {
-    var message = document.createElement('div');
-    message.style = 'z-index: 100; font-size: 10;margin: 0 auto; text-align: center; background-color:rgba(255, 86, 53, 0.9);color: #fff; width: 41%;font-family: "Roboto", "Arial", sans-serif ;';
-    message.style.position = 'absolute';
-    message.style.left = 0;
-    message.style.right = 0;
-    message.style.top = '100px';
-    message.style.fontSize = '34px';
-    message.textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', message);
-  };
 
-  window.server.load(dataSuccessHandler, dataErrorHandler);
   /**
    * Получает значение выбранного поля
    * @param {string} select имя выбранного фильтра
@@ -111,110 +37,105 @@
   };
 
   var filteredOffers;
+  var typeValue;
+  var priceValue;
+  var guestsValue;
+  var roomsValue;
+
+  var mapCheckbox = document.querySelectorAll('.map__checkbox');
+  var filters = document.querySelector('.map__filters');
+  var offers;
+  var loaded = false;
   /**
-   * Создет новый массив с предложениями  на базе данного, согласно выбранному "типу жилья".
-   * @return {array} - новый  массив
+   * Обрабочик успешной загрузки данных
+   * @param {data} offersData - полученные с сервера данные
    */
-  var filterOffersType = function () {
-    if (getFilterValue('type') === 'any') {
-      filteredOffers = offers;
-    } else {
-      filteredOffers = offers.filter(function (it) {
-        return it.offer.type === getFilterValue('type');
-      });
+  var dataSuccessHandler = function (offersData) {
+    offers = offersData;
+    filters.addEventListener('change', offersUpdate);
+    mapCheckbox.forEach(function (checkbox) {
+      checkbox.addEventListener('click', offersUpdate);
+      window.data.offersUpdate();
+      window.data.loaded = true;
+    });
+  };
+
+  /**
+   * Обработчик ошибки при загрузке данных
+   * @param {string} errorText - сообщение об ошибке
+   */
+  var dataErrorHandler = function (errorText) {
+    var message = document.createElement('div');
+    message.style = 'z-index: 100; font-size: 10;margin: 0 auto; text-align: center; background-color:rgba(255, 86, 53, 0.9);color: #fff; width: 41%;font-family: "Roboto", "Arial", sans-serif ;';
+    message.style.position = 'absolute';
+    message.style.left = 0;
+    message.style.right = 0;
+    message.style.top = '100px';
+    message.style.fontSize = '34px';
+    message.textContent = errorText;
+    document.body.insertAdjacentElement('afterbegin', message);
+  };
+  /**
+ * Фильтрует массив предложений полученных с сервера.
+ * @return {array} - массив с  данными(которые подходят под выбранные фильтры).
+ */
+  var filterOffers = function () {
+    var i = 0;
+    filteredOffers = [];
+    while ((filteredOffers.length < PINS_QUANTITY) && (i < offers.length)) {
+      if (filterItems(offers[i])) {
+        filteredOffers.push(offers[i]);
+      }
+      i++;
     }
     return filteredOffers;
   };
 
   /**
-   * Создает новый массив с предложениями на базе данного, согласно выбранной "цене"
-   * @return {array} - новый  массив
+   * Определяет подходит ли заданный объект под параметры выбранных фильтров.
+   * @param {object} it -  объект с предложением о сдачи жилья
+   * @return {bullean}
    */
-  var filterOffersPrice = function () {
-    var priceValue = getFilterValue('price').toUpperCase();
-    filteredOffers = filteredOffers.filter(Filtersprices[priceValue]);
-    return filteredOffers;
-  };
-
-  /**
-   * Создает новый массив с предложениями на базе данного, согласно выбранному количеству гостей.
-   * @return {array} - новый  массив
-   */
-  var filterOffersGuests = function () {
-    var guestsValue = getFilterValue('guests').toUpperCase();
-    filteredOffers = filteredOffers.filter(Filterguests[guestsValue]);
-    return filteredOffers;
-  };
-  /**
-   * Создает новый массив с предложениями на базе данного, согласно выбранному количеству комнат.
-   * @return {array} - новый  массив
-   */
-  var filterOffersRooms = function () {
-    var roomsValue = getFilterValue('rooms').toUpperCase();
-    filteredOffers = filteredOffers.filter(Filterrooms[roomsValue]);
-    return filteredOffers;
-  };
-
-  /**
-   * Создает массив со  всеми выбранными(нажатыми) опциями жилья(features).
-   * @return {array} - массив с опциями
-   */
-  var getAllPressedFeatures = function () {
-    var pressedFeatures = [];
-    document.querySelectorAll('.map__checkbox').forEach(function (feature) {
-      if (feature.checked) {
-        pressedFeatures.push(feature.value.toUpperCase());
-      }
+  var filterItems = function (it) {
+    var gotAllFeatures = true;
+    document.querySelectorAll('.map__checkbox:checked').forEach(function (feature) {
+      gotAllFeatures = gotAllFeatures && it.offer.features.includes(feature.value);
     });
-    return pressedFeatures;
 
+    return ((typeValue === 'any' ? true : it.offer.type === typeValue) &&
+      FiltersPrices[priceValue](it) &&
+      (roomsValue === 'any' ? true : it.offer.rooms === roomsValue) &&
+      (guestsValue === 'any' ? true : it.offer.guests === guestsValue) &&
+      gotAllFeatures);
   };
 
-  /**
-   * Создает новый массив с предложениями на базе данного, согласно выбранным опциям жилья.
-   * @return {array} - новый  массив
-   */
-  var filterOfferFeatures = function () {
-    var pressedFeatures = getAllPressedFeatures();
-    pressedFeatures.forEach(function (it) {
-      filteredOffers = filteredOffers.filter(Filterfeatures[it]);
-    });
-    return filteredOffers;
-  };
-  var lastTimeout;
+
   /**
    * Обновляет  метки на карте согласно примененным фильтрам.
    */
   var offersUpdate = function () {
-    if (lastTimeout) {
-      window.clearTimeout(lastTimeout);
-    }
-
-    /**
-     * Устанавливает время  обновления списка элементов при переключении фильтра .
-     */
-    var TIME_IN_MS = 500;
-    lastTimeout = window.setTimeout(function () {
+    var update = function () {
+      typeValue = getFilterValue('type');
+      priceValue = getFilterValue('price').toUpperCase();
+      guestsValue = getFilterValue('guests');
+      roomsValue = getFilterValue('rooms');
       window.pin.remove();
       window.card.remove();
-      filterOffersType();
-      filterOffersPrice();
-      filterOffersRooms();
-      filterOffersGuests();
-      filterOfferFeatures();
-      if (filteredOffers.length > 5) {
-        filteredOffers = filteredOffers.slice(0, 5);
-      }
+      filterOffers();
       window.pin.renderElements(filteredOffers);
       window.data.filteredOffers = filteredOffers;
-    }, TIME_IN_MS);
+    };
+    window.util.debounce(update, TIME_IN_MS);
   };
 
+
   window.data = {
-    OBJECTS_QUANTITY: OBJECTS_QUANTITY,
     APARTMENT_RUSSIAN_TYPES: APARTMENT_RUSSIAN_TYPES,
     filteredOffers: filteredOffers,
     offersUpdate: offersUpdate,
+    successHandler: dataSuccessHandler,
+    errorHandler: dataErrorHandler,
+    loaded: loaded,
   };
 
 })();

@@ -8,7 +8,10 @@
     'elevator',
     'conditioner'
   ];
+  var SIGNS_NUMBER_TO_CUT = 4;
   var cardOfferTemplate = document.querySelector('#card').content.querySelector('.map__card');
+  var cardPhotosTemplate = document.querySelector('#card').content.querySelector('.popup__photos');
+  var cardImgTemplate = cardPhotosTemplate.querySelector('img');
   /**
    * Добавляет карточку с предложением в DOM
    * @param {object} card - сформированная карточка с предложением
@@ -34,8 +37,7 @@
       }
     };
 
-    var cardPhotosTemplate = document.querySelector('#card').content.querySelector('.popup__photos');
-    var cardImgTemplate = cardPhotosTemplate.querySelector('img');
+
     var cardPhotos = cardElement.querySelector('.popup__photos');
     /**
      * Добавляет фото из массива в карточку
@@ -67,6 +69,10 @@
     document.addEventListener('keydown', cardKeyCloseHandler);
     return cardElement;
   };
+
+  /**
+   * Дезактивирует пин(убирает соотвествующий класс у DOM элемента)
+   */
   var removeActivePin = function () {
     var activePin = document.querySelector('.map__pin--active');
     if (activePin) {
@@ -89,7 +95,7 @@
    *  @param {object} evt - объект события.
    */
   var cardKeyCloseHandler = function (evt) {
-    if (evt.key === 'Escape') {
+    if (evt.key === window.util.ESCAPE) {
       document.querySelector('.map__pins').removeChild(document.querySelector('.map__card'));
       removeActivePin();
     }
@@ -102,9 +108,8 @@
    */
   var cardOpenHandler = function (evt) {
     var map = document.querySelector('.map__pins');
-    if (evt.target && evt.target.closest('.map__pin') && (!(evt.target.closest('.map__pin--main') &&
-        !(evt.target.matches('.map__pin--main'))))) {
-      var id = evt.target.closest('.map__pin').id.slice(4);
+    if (evt.target && evt.target.closest('.map__pin--offer')) {
+      var id = evt.target.closest('.map__pin').id.slice(SIGNS_NUMBER_TO_CUT);
       var index = parseInt(id, 10) - 1;
       var cardData = window.data.filteredOffers[index];
       removeCard();
